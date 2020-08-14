@@ -15,7 +15,7 @@ function validarRegistro(e){
       // La validacion Fallo
 
       Swal.fire({
-        type: 'error',
+        icon: 'error',
         title: 'Error!',
         text: 'Ambos campos son obligatorios!'
       })
@@ -43,28 +43,38 @@ function validarRegistro(e){
           // console.log(JSON.parse(xhr.responseText));
 
           var respuesta = JSON.parse(xhr.responseText);
-console.log(respuesta);
+          // console.log(respuesta);
           if (respuesta.respuesta === 'correcto') {
             if (respuesta.tipo === 'crear') {
               Swal.fire({
-                type: 'success',
+                icon: 'success',
                 title: 'corrrecto!',
                 text: 'Agregastes correctamente los campos!'
           });
-        }
-        // }else if (respuesta.tipo === 'login') {
-        //
-        // }
+            }else if (respuesta.tipo === 'login') {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Login corrrecto!',
+                  text: 'preciona ok paea abrir el dashwor!'
+            })
+            .then(resultado=>{
+              if(resultado.value){
+                window.location.href = 'index.php';
+              }
+            })
+          }
+
+
+      }else{
+            // Hubo un error.
+            Swal.fire({
+              icon: 'error',
+              title: 'La contraseña contraseña o el usuario son incorrectos!',
+              text: 'hubo un error!'
+        });
+          }
+      }
     }
-    else{
-      Swal.fire({
-        type: 'error',
-        title: 'error!',
-        text: 'hubo un error!'
-  });
-    }
-  }
-}
       // Enviar la peticion.
 
       xhr.send(datos);

@@ -64,12 +64,28 @@ $usuario = $_POST['usuario'];
             $stmt->fetch();
 
             if ($nombre_usuario) {
+              // El usuario existe verificar el passwords.
+              if(password_verify($password, $pass_usuario)){
+                // Iniciar la sesiones
+                SESSION_START();
+                $_SESSION['nombre'] = $usuario;
+                $_SESSION['id'] = $id_usuario;
+                $_SESSION['login'] = true;               
+                // Login correcto.
+                  $respuesta = array(
+                      'respuesta' => 'correcto',
+                      'nombre'=> $nombre_usuario,
+                      'tipo'=>$accion
+                  );
+
+              }else{
+                // Login incorrecto enviar error.
                 $respuesta = array(
-                    'respuesta' => 'correcto',
-                    'nombre'=> $nombre_usuario,
-                    'id' => $id_usuario,
-                    'pass' => $pass_usuario
+                    'respuesta' => 'password incorrecto!'
+
                 );
+              }
+
             }else{
                 $respuesta = array(
                     'respuesta' => 'Usuario no existe!'
