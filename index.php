@@ -2,9 +2,12 @@
   include 'inc/funciones/sesiones.php';
   include 'inc/funciones/funciones.php';
   include 'inc/templates/header.php';
-  include 'inc/templates/barra.php'
+  include 'inc/templates/barra.php';
 
-
+  // obtener el ID de la URL.
+    if(isset($_GET['id_proyecto'])) {
+      $id_proyecto = $_GET['id_proyecto'];
+    }
 
 ?>
 
@@ -21,7 +24,7 @@
                 <input type="text" placeholder="Nombre Tarea" class="nombre-tarea">
             </div>
             <div class="campo enviar">
-                <input type="hidden" id="id_proyecto" value="id_proyecto">
+                <input type="hidden" id="<?php echo $id_proyecto; ?>" value="id_proyecto">
                 <input type="submit" class="boton nueva-tarea" value="Agregar">
             </div>
         </form>
