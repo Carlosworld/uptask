@@ -6,12 +6,19 @@ function evenListener() {
     document.querySelector('.crear-proyecto a').addEventListener('click',nuevoProyecto);
 
     // Boton para nueva tarea.
-    document.querySelector('.nueva-tarea').addEventListener('click', agregarTarea);
+    if(document.querySelector('.nueva-tarea') !== null ) {
+        document.querySelector('.nueva-tarea').addEventListener('click', agregarTarea);
+    }
+
+    // Botones para las acciones de las tareas.
+
+    document.querySelector('.listado-pendientes').addEventListener('click', accionesTareas);
 }
 
 function nuevoProyecto(e) {
      e.preventDefault();
-         console.log('Distes click');
+         // console.log('Distes click');
+var listaProyectos = document.querySelector('ul#proyectos');
  // Crea un <input> para el nombre del nuevo proyecto.
  var nuevoProyecto = document.createElement('li');
  nuevoProyecto.innerHTML = '<input type="text" id ="nuevo-proyecto">';
@@ -32,17 +39,6 @@ inputNuevoProyecto.addEventListener('keypress',function(e) {
 }
 
 function guardarProyectoDB(nombreProyecto){
-    // console.log(nuevoProyecto);
-    // Inyectar el HTML.
-    // var nuevoProyecto = document.createElement('li');
-    // nuevoProyecto.innerHTML = `
-    //   <a href = "#">
-    //     ${nombreProyecto}
-    //   </a>
-    // `;
-    // listaProyectos.appendChild(nuevoProyecto);
-
-
     // Crear el llamado ajax.
     var xhr = new XMLHttpRequest();
     // Enviar datos por formdata.
@@ -52,7 +48,7 @@ function guardarProyectoDB(nombreProyecto){
 
     // Abrir la conexion.
     xhr.open('POST', 'inc/modelos/modelo-proyecto.php', true);
-
+console.log(datos);
     // En la carga
     xhr.onload = function () {
       if (this.status === 200) {
@@ -60,8 +56,9 @@ function guardarProyectoDB(nombreProyecto){
         // Obtener los datos de la respuesta
 
         var respuesta = JSON.parse(xhr.responseText);
+        // console.log(respuesta);
         var proyecto = respuesta.nombre_proyecto,
-            id_proyecto = respuesta.id_proyecto,
+            id_proyecto = respuesta.id_insertado,
             tipo = respuesta.tipo;
             resultado = respuesta.respuesta;
 
@@ -89,7 +86,8 @@ function guardarProyectoDB(nombreProyecto){
 
               .then(resultado=>{
                 if(resultado.value){
-                  // window.location.href = 'index.php?id_proyecto=' + id_proyecto;
+                    window.location.href = 'index.php?id_proyecto='+id_proyecto;
+                   // console.log(id_proyecto);
                 }
               })
 
@@ -201,4 +199,102 @@ function agregarTarea(e){
 
   }
 
+}
+ // cambia el estado de las tareas o las elimina
+
+ function accionesTareas(e) {
+   e.preventDefault();
+  if(e.target.classList.contains('fa-check-circle')){
+    if(e.target.classList.contains('completo')){
+      e.target.classList.remove('completo');
+      cambiarEstadoTarea(e.target, 0);
+    }
+    else {
+      e.target.classList.add('completo');
+      cambiarEstadoTarea(e.target , 1);
+
+    }
+  }
+  if(e.target.classList.contains('fa-trash')){
+    Swal.fire({
+    title: 'Estas seguro(a)?',
+    text: "Esta accion no se puede deshacer!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Si, Borrar!'
+  }).then((result) => {
+    if (result.value) {
+      var tareaEliminar= e.target.parentElement.parentElement;
+
+      // Borrar de la base de datos
+      eliminarTareaBD(tareaEliminar);
+      // Borar del html.
+      tareaEliminar.remove();
+
+      Swal.fire(
+        'Eliminado!',
+        'La tarea fue eliminada.',
+        'success'
+      )
+    }
+  })
+    // console.log('hiciste click en el boton de borrado');
+  }
+ }
+
+ // completa o descompleta una tarea.
+ function cambiarEstadoTarea(tarea, estado) {
+   var idTarea = tarea.parentElement.parentElement.id.split(':');
+   // Crear llamado ajax.
+   var xhr = new XMLHttpRequest();
+
+   // informacion
+   var datos = new FormData();
+   datos.append('id', idTarea[1]);
+   datos.append('accion', 'actualizar');
+   datos.append('estado', estado);
+
+
+   // Abrir la conexion.
+   xhr.open('POST','inc/modelos/modelo-tareas.php',true);
+
+   // on load
+   xhr.onload = function() {
+     if(this.status === 200){
+console.log(JSON.parse(xhr.responseText));
+     }
+   }
+
+   // Enviar la peticion.
+   xhr.send(datos);
+
+ }
+
+function eliminarTareaBD(tarea){
+
+  var idTarea = tarea.id.split(':');
+  // Crear llamado ajax.
+  var xhr = new XMLHttpRequest();
+
+  // informacion
+  var datos = new FormData();
+  datos.append('id', idTarea[1]);
+  datos.append('accion', 'eliminar');
+
+
+
+  // Abrir la conexion.
+  xhr.open('POST','inc/modelos/modelo-tareas.php',true);
+
+  // on load
+  xhr.onload = function() {
+    if(this.status === 200){
+console.log(JSON.parse(xhr.responseText));
+    }
+  }
+
+  // Enviar la peticion.
+  xhr.send(datos);
 }
