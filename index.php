@@ -56,7 +56,8 @@
               <?php
                   // obtiene las tareas del proyecto actual
                   $tareas = obtenerTareasProyecto($id_proyecto);
-                  if($tareas->num_rows > 0) {
+                  if($tareas) {
+                  // if($tareas->num_rows > 0) {
                       // si hay tareas
                       foreach($tareas as $tarea): ?>
                           <li id="tarea:<?php echo $tarea['id'] ?>" class="tarea">
@@ -76,6 +77,12 @@
 
 
             </ul>
+        </div>
+        <div class="avance">
+            <h2>Avance del proyecto: </h2>
+            <div class="barra-avance" id="barra-avance">
+              <div id="porcentaje" class="porcentaje"></div>
+            </div>
         </div>
     </main>
 </div><!--.contenedor-->

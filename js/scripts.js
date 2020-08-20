@@ -3,6 +3,11 @@ evenListener();
 var listaProyectos = document.querySelector('ul#proyectos')
 
 function evenListener() {
+    // Document ready
+    document.addEventListener('DOMContentLoaded', function() {
+      actualizarProgrezo();
+    })
+    // Boton para crear proyecto.
     document.querySelector('.crear-proyecto a').addEventListener('click',nuevoProyecto);
 
     // Boton para nueva tarea.
@@ -158,6 +163,13 @@ function agregarTarea(e){
             title: 'Tarea creada!',
             text: 'La tarea: '+tarea+' se creo correctamente.'
           });
+
+          // Seleccionar el parrfo con la lista vacia.
+          var parrafoListaVacia = document.querySelectorAll('.lista-vacia');
+          // console.log(parrafoListaVacia);
+          if(parrafoListaVacia.length > 0){
+            document.querySelector('.lista-vacia').remove();
+          }
           // Construir el template.
           var nuevaTarea = document.createElement('li');
 
@@ -180,6 +192,9 @@ function agregarTarea(e){
            // Limpiar el formulario.
            document.querySelector('.agregar-tarea').reset();
 
+           // Actualizar el progreso.
+           actualizarProgrezo();
+
           }else {
             // Hubo un error.
             Swal.fire({
@@ -187,8 +202,7 @@ function agregarTarea(e){
               title: 'error!',
               text: 'Hubo un error'
             })
-          }
-
+        }
       }
     }
 
@@ -263,7 +277,9 @@ function agregarTarea(e){
    // on load
    xhr.onload = function() {
      if(this.status === 200){
-console.log(JSON.parse(xhr.responseText));
+       console.log(JSON.parse(xhr.responseText));
+       // Actualizar el progrezo.
+       actualizarProgrezo();
      }
    }
 
@@ -291,10 +307,46 @@ function eliminarTareaBD(tarea){
   // on load
   xhr.onload = function() {
     if(this.status === 200){
-console.log(JSON.parse(xhr.responseText));
+     console.log(JSON.parse(xhr.responseText));
+      // Comprovar que haya tareas restantes.
+      var listaTareasRestantes = document.querySelectorAll('li.tarea');
+      // console.log(listaTareasRestantes);
+      if(listaTareasRestantes.length === 0){
+        document.querySelector('.listado-pendientes ul').innerHTML = "<p class='lista-vacia'>No hay tareas en este proyecto</p>";
+      }
+      // Actualizar el progreso.
+      actualizarProgrezo();
+
     }
   }
 
   // Enviar la peticion.
   xhr.send(datos);
+}
+
+
+// Actualizar el avanse del proyecto.
+
+function actualizarProgrezo() {
+  // Obtener todas las tareas.
+  const tareas = document.querySelectorAll('li.tarea');
+
+  // Obtener las tareas completas.
+  const tareasCompletadas = document.querySelectorAll('i.completo');
+
+  // Determinar el avance.
+  const avance = Math.round((tareasCompletadas.length / tareas.length)*100);
+
+  // Asignar el avance a la barra.
+  const porcentaje = document.querySelector('#porcentaje');
+  porcentaje.style.width = avance+'%';
+
+  // Mostrar una alerta al completar el 100%
+  if(avance ===100){
+    Swal.fire({
+      icon: 'success',
+      title: 'completastes el 100%!',
+      text: 'Perfecto completastes el 100% de las tareas'
+    })
+  }
 }
